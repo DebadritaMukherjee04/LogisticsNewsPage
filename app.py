@@ -130,7 +130,7 @@ def display_news(rss_url, source_name):
         with cols[i % 3]:
             # Use Streamlit components instead of pure HTML
             with st.container():
-                st.image(thumbnail, use_container_width=True)
+                st.image(thumbnail, use_column_width=True)
                 st.markdown(f"**{title[:80]}{'...' if len(title) > 80 else ''}**")
                 st.caption(published)
                 st.write(summary)
