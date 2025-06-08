@@ -44,7 +44,8 @@ for source_name, rss_url in rss_feeds:
             st.markdown("---")
 
             '''
-
+''' -------------------------------- THE MAIN ONE ----------------------------------------------'''
+'''
 import streamlit as st
 import feedparser
 from bs4 import BeautifulSoup
@@ -118,4 +119,85 @@ rss_feeds = [
 # Loop through each source
 for name, url in rss_feeds:
     display_news(url, name)
+    '''
+''' ----------------------------------------------------------------------------------------------'''
+
+import streamlit as st
+import feedparser
+from bs4 import BeautifulSoup
+import requests
+from urllib.parse import urljoin
+
+st.set_page_config(layout="wide")
+st.title("🗞️ News Dashboard")
+
+# Clean up the HTML and trim the summary
+def clean_summary(html_summary, max_words=40):
+    soup = BeautifulSoup(html_summary, "html.parser")
+    text = soup.get_text(separator=" ", strip=True)
+    footer_index = text.find("The post")
+    if footer_index != -1:
+        text = text[:footer_index]
+    words = text.split()
+    if len(words) > max_words:
+        return " ".join(words[:max_words]) + "..."
+    return text
+
+# Try to fetch thumbnail from the actual article page
+def fetch_thumbnail(url):
+    try:
+        res = requests.get(url, timeout=5)
+        soup = BeautifulSoup(res.content, "html.parser")
+        img = soup.find("meta", property="og:image")
+        if img and img.get("content"):
+            return img["content"]
+        img = soup.find("img")
+        if img and img.get("src"):
+            return urljoin(url, img["src"])
+    except:
+        return None
+    return None
+
+# Fetch and display articles from RSS
+def display_news(rss_url, source_name):
+    feed = feedparser.parse(rss_url)
+    st.subheader(f"📌 {source_name}")
+    
+    if not feed.entries:
+        st.warning("No articles found for this source.")
+        return
+    
+    cols = st.columns(3)
+
+    for i, entry in enumerate(feed.entries[:3]):
+        title = entry.title if hasattr(entry, 'title') else "No Title Available"
+        link = entry.link if hasattr(entry, 'link') else "#"
+        summary = clean_summary(entry.summary if hasattr(entry, 'summary') else "No summary available")
+        published = entry.get("published", "No date")
+        thumbnail = fetch_thumbnail(link) or "https://via.placeholder.com/300x200/cccccc/666666?text=News"
+
+        with cols[i % 3]:
+            # Use Streamlit components instead of pure HTML
+            with st.container():
+                st.image(thumbnail, use_column_width=True)
+                st.markdown(f"**{title[:80]}{'...' if len(title) > 80 else ''}**")
+                st.caption(published)
+                st.write(summary)
+                st.markdown(f"[Read more →]({link})")
+                st.markdown("---")
+
+# Define sources
+rss_feeds = [
+    ("Supply Chain Management Review", "https://www.scmr.com/feed"),
+    ("Transport Topics", "https://www.ttnews.com/rss.xml/"),
+    ("FreightWaves", "https://www.freightwaves.com/feed"),
+    ("Logistics Management", "https://feeds.feedburner.com/logisticsmgmt/latest"),
+    ("Journal of Commerce", "https://joc.com/rssfeed"),
+    ("The Loadstar", "https://theloadstar.com/feed/")
+]
+
+# Loop through each source
+for name, url in rss_feeds:
+    display_news(url, name)
+    st.markdown("---")  # Add separator between sources
 
