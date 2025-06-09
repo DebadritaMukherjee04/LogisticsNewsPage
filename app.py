@@ -1,79 +1,3 @@
-'''import streamlit as st
-import feedparser
-from bs4 import BeautifulSoup
-import requests
-from urllib.parse import urljoin
-
-st.set_page_config(layout="wide")
-st.title("📦 Logistics & Supply Chain News Dashboard")
-
-# Clean up the HTML and trim the summary
-def clean_summary(html_summary, max_words=40):
-    soup = BeautifulSoup(html_summary, "html.parser")
-    text = soup.get_text(separator=" ", strip=True)
-    footer_index = text.find("The post")
-    if footer_index != -1:
-        text = text[:footer_index]
-    words = text.split()
-    if len(words) > max_words:
-        return " ".join(words[:max_words]) + "..."
-    return text
-
-# Try to fetch thumbnail from the actual article page
-def fetch_thumbnail(url):
-    try:
-        res = requests.get(url, timeout=5)
-        soup = BeautifulSoup(res.content, "html.parser")
-        img = soup.find("meta", property="og:image")
-        if img and img.get("content"):
-            return img["content"]
-        img = soup.find("img")
-        if img and img.get("src"):
-            return urljoin(url, img["src"])
-    except:
-        return None
-    return None
-
-# Fetch and display articles from RSS
-def display_news(rss_url, source_name):
-    feed = feedparser.parse(rss_url)
-    st.subheader(source_name)
-    cols = st.columns(3)
-
-    for i, entry in enumerate(feed.entries[:3]):
-        title = entry.title
-        link = entry.link
-        summary = clean_summary(entry.summary if 'summary' in entry else "")
-        published = entry.get("published", "No date")
-        thumbnail = fetch_thumbnail(link) or "https://via.placeholder.com/150"
-
-        with cols[i % 3]:
-            st.markdown(f"""
-                <div style='background-color:#f9f9f9; padding:10px; border-radius:10px; box-shadow:2px 2px 5px rgba(0,0,0,0.1);'>
-                    <img src="{thumbnail}" style='width:100%; border-radius:10px; height:150px; object-fit:cover;'>
-                    <h4 style='margin-top:10px;'>{title}</h4>
-                    <p style='font-size:13px; color:grey;'>{published}</p>
-                    <p>{summary}</p>
-                    <a href="{link}" target="_blank">Read more →</a>
-                </div>
-            """, unsafe_allow_html=True)
-
-# Define sources
-rss_feeds = [
-    ("Supply Chain Management Review", "https://www.scmr.com/feed"),
-    ("Transport Topics", "https://www.ttnews.com/rss.xml/"),
-    ("FreightWaves", "https://www.freightwaves.com/feed"),
-    ("Logistics Management", "https://feeds.feedburner.com/logisticsmgmt/latest"),
-    ("Journal of Commerce", "https://joc.com/rssfeed"),
-    ("The Loadstar", "https://theloadstar.com/feed/")
-]
-
-# Loop through each source
-for name, url in rss_feeds:
-    display_news(url, name)
-'''
-
-
 import streamlit as st
 import feedparser
 from bs4 import BeautifulSoup
@@ -83,7 +7,7 @@ from urllib.parse import urljoin
 st.set_page_config(layout="wide")
 st.title("🗞️ News Dashboard")
 
-# Clean up the HTML and trim the summary
+# Cleaning up the HTML and trimming the summary
 def clean_summary(html_summary, max_words=40):
     soup = BeautifulSoup(html_summary, "html.parser")
     text = soup.get_text(separator=" ", strip=True)
@@ -95,7 +19,7 @@ def clean_summary(html_summary, max_words=40):
         return " ".join(words[:max_words]) + "..."
     return text
 
-# Try to fetch thumbnail from the actual article page
+# Fetching thumbnail from the actual article page
 def fetch_thumbnail(url):
     try:
         res = requests.get(url, timeout=5, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'})
@@ -135,7 +59,7 @@ def is_valid_image_url(url):
     except:
         return False
 
-# Fetch and display articles from RSS
+# Fetching and displaying articles from RSS
 def display_news(rss_url, source_name):
     try:
         feed = feedparser.parse(rss_url)
